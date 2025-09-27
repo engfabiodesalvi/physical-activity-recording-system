@@ -12,14 +12,16 @@ const int MAX_CARACTERES = 30;
 void apresentacaoSistema();
 void menuPrincipal();
 void menuVisualizarAtividadesFisicas(char diasDaSemana[7][15]);
-void menuVisualizarAtividadesFisicasDia(int dia, char diasDaSemana[7][15], char atividadesFisicas[10][11][50], int numeroCategorias);
+void menuVisualizarAtividadesFisicasDia(int diaSelecionado, char diasDaSemana[7][15], char atividadesFisicas[10][11][50], int numeroCategorias);
 void menuRegistrarAtividadeFisica(char diasDaSemana[7][15]);
-void menuRegistrarAtividadeFisicaDia(int dia, char diasDaSemana[7][15], char atividadesFisicas[10][11][50], int numeroCategorias);
-void menuRegistrarAtividadeFisicaDiaCategoria(int dia, int categoria, char diasDaSemana[7][15], char atividadesFisicas[10][11][50], int numeroAtividadesFisicas);
-void menuRegistrarAtividadeFisicaDiaNovaCategoria(int dia, char diasDaSemana[7][15], char atividadesFisicas[10][11][50], int numeroCategorias);
+void menuRegistrarAtividadeFisicaDia(int diaSelecionado, char diasDaSemana[7][15], char atividadesFisicas[10][11][50], int numeroCategorias);
+void menuRegistrarAtividadeFisicaDiaCategoria(int diaSelecionado, int categoriaSelecionada, char diasDaSemana[7][15], char atividadesFisicas[10][11][50], int numeroAtividadesFisicas);
+void menuRegistrarAtividadeFisicaDiaNovaCategoria(int diaSelecionado, char diasDaSemana[7][15], char atividadesFisicas[10][11][50], int numeroCategorias);
+void menuRegistrarAtividadeFisicaDiaNovaAtividadeFisica(int diaSelecionado, int categoriaSelecionada, char diasDaSemana[7][15], char atividadesFisicas[10][11][50], int numeroCategorias);
 int validaEntradaNumerica(int opcao, int opcaoMinMax[2], int returnOpcao);
-int validaEntradaCaracters( char caracteres, int returnNovoCaracteres);
+int validaEntradaCaracters(char *caracteres, char *returnNovoCaracteres);
 void mensagemEncerramento();
+void trim(char *s);
 
 int main() {
 
@@ -33,15 +35,24 @@ int main() {
     int opcao = 0, returnOpcao = 0;
     // Faixa de opções do menu
     int opcaoMinMax[2] = {0,0};
+
     // Categoria digitada pelo usuário
     char novaCategoria[50] = {""};
-    int returnNovaCategoria = 0;
+    // Array para armazenar o retorno da função fgets() [Erro -> NULL | Success -> aponta para a variável utilizada como buffer]
+    char *returnNovaCategoria;
+    
+    // Nova atividade física digitada pelo usuário
+    char novaAtividadeFisica[50] = {""};
+    // Array para armazenar o retorno da função fgets() [Erro -> NULL | Success -> aponta para a variável utilizada como buffer]
+    char *returnNovaAtividadeFisica;
+
+
 
     // Opções elecionadas pelo usuário
     // Domingo a Sabado - 1 a 7 / Todos os dias - 8
-    int dia = 0;
+    int diaSelecionado = 0;
     // Categoria Selecionada
-    int categoria = 0;
+    int categoriaSelecionada = 0;
     // Atividade Selecionada
     int atividade = 0;
 
@@ -57,36 +68,35 @@ int main() {
     // max 20 caracteres por item
     int numeroCategorias = MAX_CATEGORIA;
     int numeroAtividadesFisicas = MAX_ATIVIADE_FISICA;
+    // {"Categoria",
+    //  "Atividade1", "Atividade2", "Atividade3", "Atividade4", "Atividade5", "Atividade6", "Atividade7", "Atividade8", "Atividade9", "Atividade10"
+    // }
     char atividadesFisicas[10][11][50] =  {
         {
             "Cardiorespiratórios",
-            "Corrida / Trote",
-            "Caminhada",
-            "Ciclismo",
-            "Pular corda",
-            "Natação",
-            "Escalada indoor / step",
-            "", "", "", ""
+            "Corrida / Trote", "Caminhada", "Ciclismo", "Pular corda", "Natação", "Escalada indoor / step", "", "", "", ""
         },
         {
             "Força / Musculação",
-            "Flexões (Push-ups)",
-            "Agachamentos (Squats)",
-            "Afundos (Lunges)",
-            "Levantamento terra (Deadlift)",
-            "Supino (Bench press)",
-            "Remada (Row)",
-            "Prancha (Plank) - para core",
-            "", "", ""
+            "Flexões (Push-ups)", "Agachamentos (Squats)", "Afundos (Lunges)", "Levantamento terra (Deadlift)", "Supino (Bench press)", "Remada (Row)", "Prancha (Plank) - para core", "", "", ""
         },
         {
             "Exercícios de Flexibilidade / Alongamento",
-            "Alongamento de pernas",
-            "Alongamento de braços e ombros",
-            "Yoga básico",
-            "Pilates",
-            "", "", "", "", "", ""
-        }        
+            "Alongamento de pernas", "Alongamento de braços e ombros", "Yoga básico", "Pilates", "", "", "", "", "", ""
+        },       
+        {
+            "Exercícios Funcionais / HIIT",
+            "Burpees", "Mountain climbers", "Jump squats", "Kettlebell swings (se houver equipamento)", "Exercícios com TRX (suspensão)", "", "", "", "", ""
+        },    
+        {
+            "Atividades de Equilíbrio / Core",
+            "Prancha lateral", "Ponte (Glute bridge)", "Abdominais (Crunches, Bicycle crunch)", "Exercícios com bola suíça", "", "", "", "", "", ""
+        },    
+        {"", "", "", "", "", "", "", "", "", "", ""},    
+        {"", "", "", "", "", "", "", "", "", "", ""},    
+        {"", "", "", "", "", "", "", "", "", "", ""},    
+        {"", "", "", "", "", "", "", "", "", "", ""},    
+        {"", "", "", "", "", "", "", "", "", "", ""}
     };
 
     // Mensagem inicial
@@ -165,7 +175,7 @@ int main() {
                 case 7:
                 case 8:
                     // Domingo a Sabado - 1 a 7 / Todos os dias - 8
-                    dia = opcao;
+                    diaSelecionado = opcao;
                     // Primeiro dígito (1) - "Visualizar as atividades físicas"
                     // Segundo dígito (opcao) - Identifica o dia da semana ou todos os dias
                     menu = opcao + 10;
@@ -185,7 +195,7 @@ int main() {
             // Loop que garante uma entrada numérica válida
             do {                                
                 // Menu "Vizualizar atividades físicas por dia"                            
-                menuVisualizarAtividadesFisicasDia(dia, diasDaSemana, atividadesFisicas, numeroCategorias);
+                menuVisualizarAtividadesFisicasDia(diaSelecionado, diasDaSemana, atividadesFisicas, numeroCategorias);
 
                 // Opcao selecionada pelo usuario
                 printf("Entre com a opção: ");    
@@ -240,7 +250,7 @@ int main() {
                     case 6:
                     case 7:
                         // Domingo a Sabado - 1 a 7
-                        dia = opcao;
+                        diaSelecionado = opcao;
                         // Primeiro dígito (2) - "Registrar uma atividade física"
                         // Segundo dígito (opcao) - Identifica o dia da semana
                         menu = opcao + 20;       
@@ -262,11 +272,11 @@ int main() {
 
             // Menu 21 a 27 - "Registar uma atividade física"
             // Primeiro dígito [2] - Visualizar as atividades físicas
-            // Segundo dígito [opcao] - Identifica o dia da semana [1-7]            
+            // Segundo dígito [opcao] - Identifica o diaSelecionado da semana [1-7]            
             // Loop que garante uma entrada numérica válida
             do {
                 // Menu "Registrar atividades físicas por dia"                            
-                menuRegistrarAtividadeFisicaDia(dia, diasDaSemana, atividadesFisicas, numeroCategorias);
+                menuRegistrarAtividadeFisicaDia(diaSelecionado, diasDaSemana, atividadesFisicas, numeroCategorias);
 
                 printf("Entre com a opção: ");  
                 // Opcao selecionada pelo usuario
@@ -293,19 +303,17 @@ int main() {
                 ((opcao == numeroCategorias + 2) && (numeroCategorias < MAX_CATEGORIA))) {
                 // Voltar para o menu alterior                
                 menu = 2;
-            } else if (opcao == numeroCategorias + 1) {        
-                // Adicionar categoria     
-                
-
+            // } else if (opcao == numeroCategorias + 1) {        
+            //     // Adicionar categoria                     
             } else {
                 // Primeiro e segundo dígitos [22] - "Registrar uma atividade física"
                 // Terceiro dígito [opcao] - Identifica a categoria
-                categoria = opcao;                
-                menu = categoria + 220;
+                categoriaSelecionada = opcao;                
+                menu = categoriaSelecionada + 220;
    
                 // Atualiza o número de atividades físicas
                 for (numeroAtividadesFisicas = 0; numeroAtividadesFisicas < MAX_ATIVIADE_FISICA; numeroAtividadesFisicas++) {
-                    if(strlen((char*) atividadesFisicas[categoria][numeroAtividadesFisicas]) == 0)
+                    if(strlen((char*) atividadesFisicas[categoriaSelecionada - 1][numeroAtividadesFisicas + 1]) == 0)
                         break;
                 }     
             }
@@ -319,7 +327,7 @@ int main() {
             // Loop que garante uma entrada numérica válida
             do {
                 // Menu "Registrar atividades físicas por dia"                            
-                menuRegistrarAtividadeFisicaDiaCategoria(dia, categoria, diasDaSemana, atividadesFisicas, numeroAtividadesFisicas);
+                menuRegistrarAtividadeFisicaDiaCategoria(diaSelecionado, categoriaSelecionada, diasDaSemana, atividadesFisicas, numeroAtividadesFisicas);
                 
                 printf("Entre com a opção: ");  
                 // Opcao selecionada pelo usuario
@@ -346,9 +354,9 @@ int main() {
             if (((opcao == numeroAtividadesFisicas + 1) && (numeroAtividadesFisicas == MAX_ATIVIADE_FISICA)) || 
                 ((opcao == numeroAtividadesFisicas + 2) && (numeroAtividadesFisicas < MAX_ATIVIADE_FISICA))) {
                 // volta para o menu alterior
-                menu = 20 + dia;
-            // } else if (opcao == numeroAtividadesFisicas + 1) {
-            //     // Adicionar uma nova atividade física                
+                menu = 20 + diaSelecionado;
+            //  } else if (opcao == numeroAtividadesFisicas + 1) {
+            //      // Adicionar uma nova atividade física                
             } else {
                 // Primeiro, segundo e terceiro dígito (222) - "Registrar uma atividade física"
                 // Quarto dígito (opcao) - Identifica a categoria
@@ -359,40 +367,73 @@ int main() {
         } else if (menu == 220 + numeroCategorias + 1) {
             // Adicionar uma nova categoria
 
-            // Menu [2220 + numeroCategorias + 1] - "Registar uma atividade física"
-            // Primeiro, segundo e terceiro dígitos [222] - Visualizar as atividades físicas
-            // Quarto dígito [numeroCategorias + 1] - Adicionar uma nova categoria           
+            // Menu [220 + numeroCategorias + 1] - "Registar uma atividade física"
+            // Primeiro e segundo dígitos [22] - Visualizar as atividades físicas
+            // Terceiro dígito [numeroCategorias + 1] - Adicionar uma nova categoria           
             // Loop que garante uma entrada numérica válida
             do {
                 // Menu "Registrar atividades físicas por dia"  
                 // Adicionar uma nova categoria                          
-                menuRegistrarAtividadeFisicaDiaNovaCategoria(dia, diasDaSemana, atividadesFisicas, numeroCategorias);
+                menuRegistrarAtividadeFisicaDiaNovaCategoria(diaSelecionado, diasDaSemana, atividadesFisicas, numeroCategorias);
 
                 printf("Digite uma nova categoria: ");  
                 // Nova categoria digitada pelo usuário
-                returnNovaCategoria = scanf("%50s", &novaCategoria);
+                // A função fgets foi utilizada para obter strings com espaços.
+                returnNovaCategoria = fgets(novaCategoria, 50, stdin);
 
-                // Limpando o buffer de entrada!!!!
-                while(getchar() != '\n');
+                // Eliminando '\n' da string
+                novaCategoria[strcspn(novaCategoria, "\n")] = 0;
 
-            } while (!validaEntradaCaracters(categoria, returnNovaCategoria));   
-            
-            // Adiciona a categoria digitada
-            // Retira os espaçs iniciais e finais da string digitada
-            trim(novaCategoria);
+
+            } while (!validaEntradaCaracters(novaCategoria, returnNovaCategoria));   
 
             if (strlen(novaCategoria) > 0) {
                 // Adicina a nova categoria ao array de atividadesFisicas
-                strcpy(atividadesFisicas[categoria + 1][0], novaCategoria);
-
-                // atualiza a variável categoria 
-                categoria = categoria + 1;
-                // Retorna ao menu anterior
-                menu = 220 + categoria;                
+                //numeroCategorias = categoria;
+                numeroCategorias++;
+                strcpy(atividadesFisicas[numeroCategorias-1][0], novaCategoria);
             }
+            // Retorna ao menu anterior
+             menu = 20 + diaSelecionado;                    
 
-    
-        }  else {
+        } else if (menu >= 2221 && menu <= 2220 + numeroAtividadesFisicas) {
+            // Selecionar uma atividade física
+
+            // Atualiza o menu                
+            menu = categoriaSelecionada + 220;
+
+        } else if (menu == 2220 + numeroAtividadesFisicas + 1) {
+            // "Registar uma atividade física" -> "Selecionar uma categoria" -> "Adicionar uma nova atividade física"
+
+            // Menu [2220 + numeroAtividadeFisica + 1]
+            // Primeiro, segundo e tercier dígitos [222] - Visualizar as atividades físicas
+            // Quarto dígito [numeroCategorias + 1] - Adicionar uma nova categoria           
+            // Loop que garante uma entrada de caracteres válida
+            do {
+                // Menu "Registar uma atividade física" -> "Selecionar uma categoria" -> "Adicionar uma nova atividade física"  
+                // Adicionar uma nova atividade física                          
+                menuRegistrarAtividadeFisicaDiaNovaAtividadeFisica(diaSelecionado, categoriaSelecionada, diasDaSemana, atividadesFisicas, numeroCategorias);
+
+                printf("Digite uma nova atividade física: ");  
+                // Nova atividade física digitada pelo usuário
+                // A função fgets foi utilizada para obter strings com espaços.
+                returnNovaAtividadeFisica = fgets(novaAtividadeFisica, 50, stdin);
+
+                // Eliminando '\n' da string
+                novaAtividadeFisica[strcspn(novaAtividadeFisica, "\n")] = 0;
+
+            } while (!validaEntradaCaracters(novaAtividadeFisica, returnNovaAtividadeFisica));   
+
+            if (strlen(novaAtividadeFisica) > 0) {
+                // Adiciona a nova atividade fisica ao array de atividadesFisicas
+                
+                numeroAtividadesFisicas++;
+                strcpy(atividadesFisicas[categoriaSelecionada-1][numeroAtividadesFisicas], novaAtividadeFisica);                
+            }
+            // Retorna ao menu anterior
+             menu = 220 + categoriaSelecionada;          
+
+        } else {
             // Menu principal
             menu = 0;
         } 
@@ -712,7 +753,7 @@ void menuVisualizarAtividadesFisicas(char diasDaSemana[7][15]) {
     printf("9 - Voltar\n");    
 }
 
-void menuVisualizarAtividadesFisicasDia(int dia, char diasDaSemana[7][15], char atividadesFisicas[10][11][50], int numeroCategorias) {
+void menuVisualizarAtividadesFisicasDia(int diaSelecionado, char diasDaSemana[7][15], char atividadesFisicas[10][11][50], int numeroCategorias) {
     // Menu  11 ao 18 - Vizualizar as atividades físicas por dia 
     // Opção 1 a 7 - [Domingo ao Sábado]
     // ou
@@ -720,7 +761,7 @@ void menuVisualizarAtividadesFisicasDia(int dia, char diasDaSemana[7][15], char 
     printf("\n#### Registro de Atividades Físicas ####\n");
     printf("=== Visualizar as Atividades Físicas ===\n");
     // Imprime as atividades físicas               
-    if (dia == 8) {
+    if (diaSelecionado == 8) {
         for (int indexDia = 0; indexDia <= 6; indexDia++) {
             if (indexDia > 0 && indexDia < 6)
                 printf(">> Atividades físicas da %s:\n", diasDaSemana[indexDia]);
@@ -729,10 +770,10 @@ void menuVisualizarAtividadesFisicasDia(int dia, char diasDaSemana[7][15], char 
         }
         
     } else {
-        if (dia > 1 && dia < 7)
-            printf(">> Atividades físicas da %s:\n", diasDaSemana[dia-1]);
+        if (diaSelecionado > 1 && diaSelecionado < 7)
+            printf(">> Atividades físicas da %s:\n", diasDaSemana[diaSelecionado-1]);
         else
-            printf(">> Atividades físicas do %s:\n", diasDaSemana[dia-1]);
+            printf(">> Atividades físicas do %s:\n", diasDaSemana[diaSelecionado-1]);
     }
     // Imprime as atividades físicas               
     printf("1 - Voltar\n");
@@ -749,10 +790,9 @@ void menuRegistrarAtividadeFisica(char diasDaSemana[7][15]) {
     for (int indiceDia = 0; indiceDia < strlen((char*)diasDaSemana); indiceDia++)
         printf("%d - %s\n", indiceDia + 1, diasDaSemana[indiceDia]);
     printf("8 - Voltar\n");
-    printf("Entre com a opção: ");
 }
 
-void menuRegistrarAtividadeFisicaDia(int dia, char diasDaSemana[7][15], char atividadesFisicas[10][11][50], int numeroCategorias) {
+void menuRegistrarAtividadeFisicaDia(int diaSelecionado, char diasDaSemana[7][15], char atividadesFisicas[10][11][50], int numeroCategorias) {
     // Registrar uma atividade física (Menu 21 a 27)
     // Mostra o dia selecionado
     // Mostra as categorias cadastradas
@@ -760,13 +800,13 @@ void menuRegistrarAtividadeFisicaDia(int dia, char diasDaSemana[7][15], char ati
     printf("\n#### Registro de Atividades Físicas ####\n");
     printf("=== Registrar uma atividade física ===\n");
     // Imprime o dia da semana selecionado
-    printf(">> Dia selecionado: %s.\n", diasDaSemana[dia-1]);
+    printf(">> Dia selecionado: %s.\n", diasDaSemana[diaSelecionado-1]);
     printf(">> Selecione uma categoria:\n");
     // Imprime as categorias de atividade física
     for (int indiceCategoria = 0;
             indiceCategoria < numeroCategorias;
             indiceCategoria++)
-        printf("%d - %s\n", indiceCategoria + 1, atividadesFisicas[indiceCategoria]);          
+        printf("%d - %s\n", indiceCategoria + 1, atividadesFisicas[indiceCategoria][0]);          
     // Imprime a opção de adicionar categoria
     if (numeroCategorias < MAX_CATEGORIA)
         printf("%d - Adicionar uma categoria\n", numeroCategorias + 1 );
@@ -774,35 +814,48 @@ void menuRegistrarAtividadeFisicaDia(int dia, char diasDaSemana[7][15], char ati
     printf("%d - Voltar\n", (numeroCategorias < MAX_CATEGORIA ) ? numeroCategorias + 2 : numeroCategorias + 1);
 }
 
-void menuRegistrarAtividadeFisicaDiaCategoria(int dia, int categoria, char diasDaSemana[7][15], char atividadesFisicas[10][11][50], int numeroAtividadesFisicas) {
+void menuRegistrarAtividadeFisicaDiaCategoria(int diaSelecionado, int categoriaSelecionada, char diasDaSemana[7][15], char atividadesFisicas[10][11][50], int numeroAtividadesFisicas) {
     // Registrar uma atividade física (menu = 2)
     // Opção 1 - Segunda-Feira
     printf("\n#### Registro de Atividades Físicas ####\n");
     printf("=== Registrar uma atividade física ===\n");
     // Imprime o dia da semana selecionado
-    printf(">> Dia selecionado: %s.\n", diasDaSemana[dia-1]);
+    printf(">> Dia selecionado: %s.\n", diasDaSemana[diaSelecionado-1]);
     // Imprime a categoria selecionada
-    printf(">> Categoria selecionada: %s.\n", atividadesFisicas[categoria - 1][0]);
+    printf(">> Categoria selecionada: %s.\n", atividadesFisicas[categoriaSelecionada - 1][0]);
     // Imprime as atividades físicas
-    for (int indiceAtividadeFisica = 0;
-            indiceAtividadeFisica < numeroAtividadesFisicas;
+    for (int indiceAtividadeFisica = 1;
+            indiceAtividadeFisica <= numeroAtividadesFisicas;
             indiceAtividadeFisica++)
-        printf("%d - %s\n", indiceAtividadeFisica + 1, atividadesFisicas[categoria][indiceAtividadeFisica]); 
+        printf("%d - %s\n", indiceAtividadeFisica, atividadesFisicas[categoriaSelecionada - 1][indiceAtividadeFisica]); 
     // Imprime a opção de adicionar atividade física
     if (numeroAtividadesFisicas < MAX_ATIVIADE_FISICA)          
-        printf("%d - Adicionar uma atividade física\n", numeroAtividadesFisicas + 1),        
+        printf("%d - Adicionar uma atividade física\n", numeroAtividadesFisicas + 1);        
     printf("%d - Voltar\n", (numeroAtividadesFisicas < MAX_ATIVIADE_FISICA)? numeroAtividadesFisicas + 2 : numeroAtividadesFisicas + 1);
 }
 
-void menuRegistrarAtividadeFisicaDiaCategoriaNovaCategoria(int dia, int categoria, char diasDaSemana[7][15], char atividadesFisicas[10][11][50], int numeroAtividadesFisicas) {
+void menuRegistrarAtividadeFisicaDiaNovaCategoria(int diaSelecionado, char diasDaSemana[7][15], char atividadesFisicas[10][11][50], int numeroAtividadesFisicas) {
     // Registrar uma atividade física (menu = 2)
     // Opção 1 - Segunda-Feira
     printf("\n#### Registro de Atividades Físicas ####\n");
     printf("=== Registrar uma atividade física ===\n");
     // Imprime o dia da semana selecionado
-    printf(">> Dia selecionado: %s.\n", diasDaSemana[dia-1]);
+    printf(">> Dia selecionado: %s.\n", diasDaSemana[diaSelecionado - 1]);
+    // Imprime a mensagem nova categoria
+    printf(">> Nova categoria.\n");
+}
+
+void menuRegistrarAtividadeFisicaDiaNovaAtividadeFisica(int diaSelecionado, int categoriaSelecionada, char diasDaSemana[7][15], char atividadesFisicas[10][11][50], int numeroAtividadesFisicas) {
+    // Registrar uma atividade física (menu = 2)
+    // Opção 1 - Segunda-Feira
+    printf("\n#### Registro de Atividades Físicas ####\n");
+    printf("=== Registrar uma atividade física ===\n");
+    // Imprime o dia da semana selecionado
+    printf(">> Dia selecionado: %s.\n", diasDaSemana[diaSelecionado-1]);
     // Imprime a categoria selecionada
-    printf(">> Nova categoria selecionada.\n");
+    printf(">> Categoria selecionada: %s.\n", atividadesFisicas[categoriaSelecionada - 1][0]);
+    // Imprime a mensagem nova atividade física
+    printf(">> Nova atividade física.\n");
 }
 
 int validaEntradaNumerica(int opcao, int opcaoMinMax[2], int returnOpcao) {
@@ -822,15 +875,15 @@ int validaEntradaNumerica(int opcao, int opcaoMinMax[2], int returnOpcao) {
     return 1; // Entrada numérica Ok
 }
 
-int validaEntradaCaracters( char caracteres, int returnNovoCaracteres) {
+int validaEntradaCaracters(char *caracteres, char *returnNovoCaracteres) {
  
     // Verifica se apenas um valor de caracteres foi digitado
-    if (returnNovoCaracteres != 1) {
+    if (!(strlen(returnNovoCaracteres) > 0)) {
         printf("\nValor inválido!\n");
         return 0; // Entrada inválida
     }             
 
-    return 1; // Entrada numérica Ok    
+    return 1; // Entrada caracteres Ok    
 
 }
 
@@ -839,7 +892,7 @@ void mensagemEncerramento() {
 }
 
 // Remove espaços em branco do inicio da string
-void trim_leading_whitespace(char *s) {
+void trim(char *s) {
     int i = 0;
     // Find the first non-whitespace character
     while (isspace((unsigned char)s[i])) {
@@ -857,67 +910,5 @@ void trim_leading_whitespace(char *s) {
 // $ exemplo{number}.exe
 // $ echo %errorlevel%
 
-// Exercícios Cardiorrespiratórios
-
-// Corrida / Trote
-
-// Caminhada
-
-// Ciclismo
-
-// Pular corda
-
-// Natação
-
-// Escalada indoor / step
-
-// 2️⃣ Exercícios de Força / Musculação
-
-// Flexões (Push-ups)
-
-// Agachamentos (Squats)
-
-// Afundos (Lunges)
-
-// Levantamento terra (Deadlift)
-
-// Supino (Bench press)
-
-// Remada (Row)
-
-// Prancha (Plank) – para core
-
-// 3️⃣ Exercícios de Flexibilidade / Alongamento
-
-// Alongamento de pernas
-
-// Alongamento de braços e ombros
-
-// Yoga básico
-
-// Pilates
-
-// 4️⃣ Exercícios Funcionais / HIIT
-
-// Burpees
-
-// Mountain climbers
-
-// Jump squats
-
-// Kettlebell swings (se houver equipamento)
-
-// Exercícios com TRX (suspensão)
-
-// 5️⃣ Atividades de Equilíbrio / Core
-
-// Prancha lateral
-
-// Ponte (Glute bridge)
-
-// Abdominais (Crunches, Bicycle crunch)
-
-// Exercícios com bola suíça
-
-
+// Como verificar o tamanho de arrays
 // printf( %d - %d - %d - %d - %d", numeroCategorias, sizeof(atividadesFisicas[0]), sizeof(atividadesFisicas[0][0]), sizeof(atividadesFisicas[0][0][0]), sizeof(atividadesFisicas[0][0][0][0]));            
