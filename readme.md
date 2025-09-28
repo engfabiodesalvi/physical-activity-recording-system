@@ -1,4 +1,4 @@
-### [English version](#Versao em portugues)
+###     [English version](#Versão-em-português)
 
 # 📘 Sistema de Registro de Atividades Físicas Diárias v1.0
 
@@ -144,7 +144,7 @@ O código explora recursos avançados da linguagem **C** e do console **Windows*
 
 ---
 
-### [Versao em portugues](#English version)
+### [Versão em português](#English-version)
 # 📘 Daily Physical Activity Recording System v1.0
 
 ## Project Description
