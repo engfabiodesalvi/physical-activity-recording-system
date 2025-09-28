@@ -447,7 +447,7 @@ int main() {
                 numeroCategorias++;
                 strcpy(atividadesFisicas[numeroCategorias-1][0], novaCategoria);
                 // Imprime uma mensagem confirmando os dados adicionados
-                printf("\n -> Nva categoria adicionada!\n");
+                printf("\n -> Nova categoria adicionada!\n");
                 printf(" [Nova categoria: %s]\n", atividadesFisicas[numeroCategorias-1][0]);                
             }
             // Retorna ao menu anterior
@@ -541,6 +541,8 @@ int main() {
         // Sair - sairMenu igual a 1 encerra o sistema! 
     } while (!sairMenu);
 
+    mensagemEncerramento();
+
     return 0;
 }
 
@@ -554,7 +556,8 @@ void apresentacaoSistema() {
     printf("Desenvolvido por Fabio Toledo Bonemer De Salvi\n");
     printf("\n");
     printf("* Visualize as suas atividades físicas diárias!\n");
-    printf("-> Visualize as atividades físicas por dia da semana ou pela semana inteira!\n");
+    printf("-> Visualize as atividades físicas por dia da semana ou pela semana\n");
+    printf("    inteira!\n");
     printf("-> Destaque para o dia mais ativo! O \"Top Day\"!\n");
     printf("\n");
     printf("* Registre as suas atividades físicas diárias\n");
@@ -777,7 +780,14 @@ int validaEntradaCaracters(char *caracteres, char *returnNovoCaracteres) {
 }
 
 void mensagemEncerramento() {
-
+    // Mensagem de encerramento
+    printf("\n");
+    printf("####################################################################\n");
+    printf("########## Sistema de Registro de Atividades Físicas v1.0 ##########\n");
+    printf("####################################################################\n");
+    printf("Obrigado por utilizar nosso sistema!\n\n");  
+    printf("Volte sempre!\n");  
+    printf("####################################################################\n");    
 }
 
 // Remove espaços em branco do inicio da string
