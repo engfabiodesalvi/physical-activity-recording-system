@@ -145,7 +145,7 @@ O código explora recursos avançados da linguagem **C** e do console **Windows*
 ---
 
 ### [Versão em português](#English version)
-# 📘 Physical Activity Tracking System v1.0
+# 📘 Physical Activity Recording System v1.0
 
 ## Project Description
 
@@ -225,9 +225,6 @@ The code explores advanced features of **C** and the **Windows console**:
     ├── main.c # Main source code of the system
     ├── README.md # Project documentation
     └── LICENSE # (Optional) Project license
-
-yaml
-Copiar código
 
 ---
 
