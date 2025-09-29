@@ -664,14 +664,17 @@ void menuVisualizarAtividadesFisicasDia(int diaSelecionado, char diasDaSemana[7]
                 //     printf(" * %d atividade(s)!\n", numeroAtividadesDia[indexDia]);
                 // }                                              
             }   
-            // Imprime o número diário de atividades físicas ao chegar no final do vetor
+            // Imprime o número diário de atividades físicas
             printf(" * %d atividade(s)!\n\n", numeroAtividadesDia[indexDia]);
                   
         }
     }
 
-    // Imprime o número total de atividades físicas ao chegar no final do vetor
-    printf(" * Total: %d atividade(s)!\n\n", numeroAtividadesFisicasSelecionadas);
+    // Verifica se a opção seleciona é a semana inteira
+    if (diaSelecionado == 8) {
+        // Imprime o número total de atividades físicas ao chegar no final do vetor
+        printf(">> Total: %d atividade(s)!\n\n", numeroAtividadesFisicasSelecionadas);
+    }
                             
     // Imprime as atividades físicas               
     printf("1 - Voltar\n");
